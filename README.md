@@ -26,8 +26,9 @@ Optionally you can also install a Vagrant plugin called cachier that will cache 
 
 
 This package by default uses Oracle Virtual Box as the provider. 
-However,  it is also configured to be used with the Microsoft Azure cloud service.
-    e.g. vagrant up --provider=azure
+However,  it is also configured to be used with the Microsoft Azure cloud service, which can be used by:
+
+`vagrant up --provider=azure`
 
 To use the Azure provider two addtional Vagrant installs are required. Commands are:
 
