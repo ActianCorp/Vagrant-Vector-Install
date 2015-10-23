@@ -21,23 +21,26 @@ This package was tested using Vagrant 1.7.4, CentOS 6.7 and Oracle Virtual Box 5
 Azure free trial.
 Vagrant was installed and run on Windows and as a result the examples and documentation reflect this.
 
+Optionally you can also install a Vagrant plugin called cachier that will cache update packages from one execution of the box to the next, so you don't have to wait for them to be downloaded every time you reset the machine. This can be done as follows:
+`vagrant plugin install cachier`
+
 
 This package by default uses Oracle Virtual Box as the provider. 
 However,  it is also configured to be used with the Microsoft Azure cloud service.
     e.g. vagrant up --provider=azure
 
-To use the Azure provider 2 addtional Vagrant installs are requiredi. Commands are:
+To use the Azure provider two addtional Vagrant installs are required. Commands are:
 
     1. vagrant plugin install vagrant-azure 
     2. vagrant box add azure https://github.com/msopentech/vagrant-azure/raw/master/dummy.box
 
-First thing to know is that unlike Virtual Box you can't have a Vagrant file for the Azure provider that works for everyone. There are details specific to you and you only these being:
+First thing to know is that unlike Virtual Box you can't have a Vagrantfile for the Azure provider that works for everyone. There are details specific to you and you only, which are:
 
     1. Your Azure Subscription ID;
     2. Your certificate:
         - The .pem file.
 
-A separate illustrated word document is available to guide you through the Azure subscription process and how to setup Azure and the Vagrant file changes required which are related to your personal subscription.
+A separate illustrated Word document is available to guide you through the Azure subscription process and how to setup Azure and the Vagrantfile changes required which are related to your personal subscription.
 
 
 To get your Vector installation up and running:
