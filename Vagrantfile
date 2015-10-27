@@ -45,7 +45,6 @@
 Vagrant.configure(2) do |config|
 
   config.vm.box = 'box-cutter/centos67'
-  config.vm.synced_folder '.', '/vagrant', disabled: true
 
   # Provider - Virtual Box VM (Default)
 
@@ -59,6 +58,23 @@ Vagrant.configure(2) do |config|
 
     # Customize the amount of memory on the VM 
     vb.memory = "4096"
+
+    # Use 4 CPUs for Vector
+    #vb.cpus = '4'
+
+    # Forward essential Vector ports to allow access from Host    
+
+    # 1. Management Server Discovery port
+    override.vm.network "forwarded_port", guest: 16902, host: 33902
+    # 2. Management Server Command port (Actian Director)
+    override.vm.network "forwarded_port", guest: 27712, host: 33712
+    # 3. Communication Server port (GCC for IngresNet and ODBC)
+    override.vm.network "forwarded_port", guest: 27719, host: 33719
+    # 4. Data Access Server port (.Net and JDBC)
+    override.vm.network "forwarded_port", guest: 44103, host: 33103
+
+    # Forward terminal access port
+    override.vm.network "forwarded_port", guest: 22, host: 33022
 
   end
 
@@ -76,11 +92,14 @@ Vagrant.configure(2) do |config|
     override.ssh.pty              = true
     override.vm.boot_timeout      = 1500
 
+    # Vagrant share does not work for Azure provider.
+    override.vm.synced_folder '.', '/vagrant', disabled: true
+
     # Mandatory Settings 
     azure.mgmt_certificate        = 'azurevagrant.pem'
                                     # See above.
     azure.mgmt_endpoint           = 'https://management.core.windows.net'
-    azure.subscription_id         = '#############-####-####-############'
+    azure.subscription_id         = '########-####-####-####-############'
                                     # Your Azure Account Subscription ID.
     azure.vm_image                = '5112500ae3b842c8b9c604889f8753c3__OpenLogic-CentOS-67-20150815'
     azure.vm_name                 = 'VectorEvaluationVM'
