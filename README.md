@@ -87,9 +87,17 @@ The DBT3 test scripts have been run. The following output fils are applicable:
     2. Run results - /actian/home/VectorH-DBT3-Scripts/run_performance.out
 
 
-NOTES
+NOTES:
 
 The approach to using 'Chef' in the Vagrantfile may seem strange as the installation and chef-apply are performed via the "config.vm.provision 'shell' ....".
 This was intentional to create a generic script that would work for providers Oracle Virtual Box and Azure.
 Using Azure 'chef_apply' will fail installing Chef. Even when Chef is manually installed to circumvent this, it will then fail applying a Recipe even though it appears to complete successfully.
+
+KNOWN ISSUES:
+
+Randomly the DBT3 scripts can get stuck waiting for user input (They are run non interactively).
+If the VM creation appears to stall for a long time 'Running script: DBT3 Test Suite' logon to the VM and tail log '/tmp/load-run-dbt3-benchmark.log' for repeated messages of the format:
+    Do you want to overwrite ./lineitem.tbl.3 ? [Y/N]: Please answer 'yes' or 'no'.
+The easiest solution is to CTRL-C the 'vagrant up' then restart the machine with 'vagrant halt' then 'vagrant up' rather than trying to kill the appropriate DBT3 processes.
+This is not detrimental to the VM created as the DBT3 scripts are the last component.
 
