@@ -60,7 +60,7 @@ bash 'Set Environment' do
     if [ '#{dataflow_zip}' != '' -o '#{dataflow_rpm}' != '' ]; then 
       echo 'export PATH=$PATH:/home/actian/dataflow/bin' >> /home/actian/.bashrc
       echo 'export DR_HOME=/home/actian/dataflow' >> /home/actian/.bashrc
-      echo 'export JAVA_HOME=/usr/lib/jvm/jre-1.7.0-openjdk.x86_64' >> /home/actian/.bashrc
+      echo 'export JAVA_HOME=/usr/lib/jvm/jre' >> /home/actian/.bashrc
     fi
   EOH
   cwd '/home/actian'
