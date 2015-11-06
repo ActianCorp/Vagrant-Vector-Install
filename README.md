@@ -21,14 +21,13 @@ This package was tested using Vagrant 1.7.4, CentOS 6.7 and Oracle Virtual Box 5
 Azure free trial.
 Vagrant was installed and run on Windows and as a result the examples and documentation reflect this.
 
-Optionally you can also install a Vagrant plugin called cachier that will cache update packages from one execution of the box to the next, so you don't have to wait for them to be downloaded every time you reset the machine. This can be done as follows:
-`vagrant plugin install cachier`
-
 
 This package by default uses Oracle Virtual Box as the provider. 
-However,  it is also configured to be used with the Microsoft Azure cloud service, which can be used by:
 
-`vagrant up --provider=azure`
+However,  it is also configured to be used with the Microsoft Azure and Amazon AWS cloud service, which can be used by:
+
+`vagrant up --provider=azure` OR `vagrant up --provider=aws`
+
 
 To use the Azure provider two addtional Vagrant installs are required. Commands are:
 
@@ -41,7 +40,25 @@ First thing to know is that unlike Virtual Box you can't have a Vagrantfile for 
     2. Your certificate:
         - The .pem file.
 
-A separate illustrated Word document is available to guide you through the Azure subscription process and how to setup Azure and the Vagrantfile changes required which are related to your personal subscription.
+A separate illustrated Word document is available to guide you through the Azure Subscription setup process and how to make the required Azure and the Vagrantfile changes related to your Azure Subscription.
+
+
+To use the AWS provider again two addtional Vagrant installs are required. Commands are:
+
+    1. vagrant plugin install vagrant-aws 
+    2. vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box
+
+As for Azure, you can't have a Vagrantfile for the AWS provider that works for everyone. There are details specific to you and you only, which are:
+
+    1. Your AWS user Access Key ID and Secret Access Key;
+    2. Your certificate:
+        - The .pem file.
+
+A separate illustrated Word document is available to guide you through the AWS Account setup process
+and how to make the required AWS and the Vagrantfile changes specific to your AWS account.
+
+Please Note - For AWS, RedHat 7.1 has been used due to the lack of availability of a suitable CentOS
+6.7 AMI.
 
 
 To get your Vector installation up and running:
@@ -71,13 +88,14 @@ Before running "vagrant up":
     2. Into your directory e.g. "C:\VectorEval", copy your download.
 
 
-Once Vagrant has completed the VM configuration and installs a terminal screen will be displayed for the Virtual Box VM created. For Azure reference the associated word document on a suggested terminal access method.
+Once Vagrant has completed the VM configuration and installs a terminal screen will be displayed for the Virtual Box VM created. For Azure and AWS reference the associated word document for a suggested terminal access method.
 
-The complete configuration for Virtual Box can take up to 5 minutes dependent on the speed of your network.  If using the Microsoft Azure provider be patient as in the author's experience it can take a little longer!
+The complete configuration for Virtual Box can take up to 5 minutes dependent on the speed of your network.  If using the Microsoft Azure provider be patient as in the author's experience it can take a little longer!  In the author's experience configuration time for AWS was very good.
+
 If you choose to also install DataFlow the install is approx. 500MB so this will considerably
-degrade the configuration on Azure.
+degrade the configuration time for Azure.
 
-When complete logon as User: actian, Password : actian
+For Virtual Box logon as User: actian, Password : actian
 
 At this point the Vector environment is fully configured for you to use. 
 
@@ -93,11 +111,19 @@ The approach to using 'Chef' in the Vagrantfile may seem strange as the installa
 This was intentional to create a generic script that would work for providers Oracle Virtual Box and Azure.
 Using Azure 'chef_apply' will fail installing Chef. Even when Chef is manually installed to circumvent this, it will then fail applying a Recipe even though it appears to complete successfully.
 
+A Vagrant plugin is available called cachier. This plugin will cache update packages from one execution of the box to the next so reduces the wait time for boxes to be downloaded whenever a machines
+is reset This is installed as follows:
+    `vagrant plugin install cachier`
+
+
 KNOWN ISSUES:
 
 Randomly the DBT3 scripts can get stuck waiting for user input (They are run non interactively).
+
 If the VM creation appears to stall for a long time 'Running script: DBT3 Test Suite' logon to the VM and tail log '/tmp/load-run-dbt3-benchmark.log' for repeated messages of the format:
+
     Do you want to overwrite ./lineitem.tbl.3 ? [Y/N]: Please answer 'yes' or 'no'.
+
 The easiest solution is to CTRL-C the 'vagrant up' then restart the machine with 'vagrant halt' then 'vagrant up' rather than trying to kill the appropriate DBT3 processes.
 This is not detrimental to the VM created as the DBT3 scripts are the last component.
 

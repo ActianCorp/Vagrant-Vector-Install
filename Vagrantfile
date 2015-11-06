@@ -23,11 +23,17 @@
 
 # This Vagrant script will perfom the following operations:
 #   1. Create a Cento 6.7 Linux environment that is fully up to date.
+#      (RedHat 7.1 for the AWS Provider)
 #   2. Install, via Chef, Actian Vector previously downloaded.
 #         - Requires an authstring
 #         - Will also require a Public Key for RPM install.
 #   3. Run the Actian DBT3 tests.
 #   4. If present, install Actian DataFlow.
+
+# This script works with the following Providers:
+#   1. Oracle Virtual Box.
+#   2. Microsoft Azure (Azure Account setup required - See separate document)
+#   3. Amazon AWS      (AWS Account setup required - See separate document)
 
 # The approach to using 'Chef' in this script may seem strange as the installation
 # and chef-apply are performed via the "config.vm.provision 'shell' ...."
@@ -66,14 +72,17 @@ Vagrant.configure(2) do |config|
 
     # 1. Management Server Discovery port
     override.vm.network "forwarded_port", guest: 16902, host: 33902
-    # 2. Management Server Command port (Actian Director)
+
+    # 2. Communication Server port (GCC for IngresNet and ODBC)
     override.vm.network "forwarded_port", guest: 27712, host: 33712
-    # 3. Communication Server port (GCC for IngresNet and ODBC)
+    
+    # 3. Data Access Server port (.Net and JDBC)
     override.vm.network "forwarded_port", guest: 27719, host: 33719
-    # 4. Data Access Server port (.Net and JDBC)
+    
+    # 4. Management Server Command port (Actian Director)
     override.vm.network "forwarded_port", guest: 44103, host: 33103
 
-    # Forward terminal access port
+    # Forward SSH port
     override.vm.network "forwarded_port", guest: 22, host: 33022
 
   end
@@ -119,6 +128,50 @@ Vagrant.configure(2) do |config|
 
   end
 
+  # Provider - Amazon Web Services (AWS)
+  #            Documented below are the settings that need to be changed as they are specific
+  #            to youe AWS Account. 
+
+  config.vm.provider :aws do |aws, override|
+
+    override.vm.box                = 'dummy'
+    override.vm.boot_timeout       = 1000
+
+    # Vagrant share does not work for AWS provider.
+    override.vm.synced_folder '.', '/vagrant', disabled: true
+
+    aws.region                    = 'eu-west-1'
+                                    # You may wish to set this to something appropriate to your location.
+                                    # The region must be a match for the region under which the key pair was created.
+
+    # Instance Type - Can't default on a specific instance type (which determines the CPU and Memory)
+    #                 The availability in the free trial is different dependent on the AMI choosen.
+    #                 Note - Vector will not run on ANY of the free instances available as it required 2Gb memory.
+    #                        Instance Type 't2.medium' is not free for the RedHat AMI.
+
+    # Official AWS RedHat 7.1
+    aws.instance_type             = 't2.medium'
+    aws.ami                       = 'ami-25158352'
+    override.ssh.username         = 'ec2-user'
+
+    aws.tags['Name']              = 'VectorEvaluationVM'
+
+    aws.access_key_id             = '####################'
+                                    # Your AWS Account 'user' Access Key ID.
+    aws.secret_access_key         = '########################################'
+                                    # Your AWS Account 'user' Secret Access Key.
+    aws.keypair_name              = 'VagrantKeyPair'
+                                    # You can stick with the naming of this key pair.
+
+    override.ssh.private_key_path = 'VagrantKeyPair.pem'
+                                    # You can stick with the naming of this file but you must generate
+                                    # your own.
+
+    override.ssh.insert_key       = false
+    override.ssh.pty              = true
+
+  end
+
 # Common code from here. 
 
   if Vagrant.has_plugin?("vagrant-cachier")
@@ -131,12 +184,12 @@ Vagrant.configure(2) do |config|
     echo never > /sys/kernel/mm/transparent_hugepage/enabled
     sed -i \'s/^SELINUX=.*$/SELINUX=disabled/\' /etc/selinux/config
     yum -y update
-    # Required for DBT3 Scripts
-    yum -y install git gcc time
     # Required for Vector
     yum -y install libaio
     # Required for Vector rpm 
     yum -y install libX11 libXext libXi libXrender libXtst alsa-lib
+    # Required for DBT3 Scripts
+    yum -y install git gcc time wget
     # Required for DataFlow 
     yum -y install unzip java-1.7.0-openjdk.x86_64
   SHELL
